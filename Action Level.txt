@@ -1,0 +1,40 @@
+On Error Resume Next
+		sTitleMask = "HP Unified Functional Testing - .*"
+		Window("regexpwndtitle:=" & sTitleMask).Minimize
+		Window("regexpwndtitle:=" & sTitleMask).visible = false
+						
+		sExecController = InitializeSuitDetails()
+		arrModule = IntializeTestcaseSetup(sExecController)  
+		
+		    For iModuleCount= 0 to UBound (arrModule)    
+		        arrTestCases = InitializeModuleSetup(arrModule, iModuleCount)
+		        For iTestCaseCount = 0 to UBound(arrTestCases)
+		            	UNIVERSAL.add "TESTFLOW", "Following Steps Completed ::"
+		            	EXEC.Item("TCId")=arrTestCases(iTestCaseCount,1)
+		            	sSheetName = SheetNameFetch(arrTestCases(iTestCaseCount,0)) 
+		            	sTestDataSet = arrTestCases(iTestCaseCount,3)
+		            	asTestDataSet = Split(sTestDataSet, "|")
+		            	
+		            	For iDataSetIterator = Lbound(asTestDataSet) To Ubound(asTestDataSet) Step 1
+		            	
+							sDataSetColumn = asTestDataSet(iDataSetIterator)
+								            Dim d ,oF,fileContent
+											subInitialTestSetUp EXEC, UNIVERSAL, EXEC.Item("MODULEDATAFILE"), sSheetName, arrTestCases(iTestCaseCount,0), "TestSet1" 
+								    		iStepCount=0					    		
+								    				
+								    				Execute( arrTestCases(iTestCaseCount,1))		
+		
+								    		EndTestcaseSetup arrTestCases(iTestCaseCount,1), arrTestCases(iTestCaseCount,2)
+								            	UNIVERSAL.RemoveAll( )
+								            	wait(2)
+		            
+		            	Next
+		            	
+		        Next
+		        EndModuleSetup arrModule,iModuleCount
+		    Next
+		    If ORType="ProjectLevel" and anyORUploaded=true Then
+				qtpRepositories.RemoveAll
+				OBJ.RemoveAll
+			End if
+		EndTheSuit()
